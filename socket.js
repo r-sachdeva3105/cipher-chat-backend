@@ -25,10 +25,10 @@ module.exports = function (server) {
             if (unpairedUser.length < 2) return
             const user = getUser(userId)
             const user2 = getUser(unpairedUser[0])
-            io.to(user.socketId).emit("paired", user2.userId)
-            removeUnpairedUser(user2.userId)
-            io.to(user2.socketId).emit("paired", user.userId)
-            removeUnpairedUser(user.userId)
+            io.to(user ? user.socketId : null).emit("paired", user2 ? user2.userId : null)
+            removeUnpairedUser(user2 ? user2.userId : null)
+            io.to(user2 ? user2.socketId : null).emit("paired", user? user.userId : null)
+            removeUnpairedUser(user? user.userId : null)
         })
 
         socket.on("closed", (userId, callback) => {
@@ -48,13 +48,13 @@ module.exports = function (server) {
 
         socket.on("unpaired", (receiver, callback) => {
             const user = getUser(receiver)
-            io.to(user.socketId).emit("unpaired")
+            io.to(user ? user.socketId : null).emit("unpaired")
             callback()
         })
 
         socket.on("typing", (userId) => {
             const user = getUser(userId)
-            io.to(user.socketId).emit("typing")
+            io.to(user? user.socketId : null).emit("typing")
         })
 
         socket.on("notTyping", (userId) => {
@@ -78,7 +78,7 @@ module.exports = function (server) {
 
         socket.on("disconnect", () => {
             const user = removeUser(socket.id)
-            removeUnpairedUser(user.userId)
+            removeUnpairedUser(user ? user.userId : null)
             const onlineUsers = getUsers()
             io.emit("getUsers", onlineUsers);
             console.log('A user disconnected')
