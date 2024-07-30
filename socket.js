@@ -39,7 +39,7 @@ module.exports = function (server) {
         socket.on("sendMessage", (receiver, message, callback) => {
             const user = getUser(receiver)
             if (!user) {
-                return callback()
+                return callback("User not found")
             }
             io.to(user.socketId).emit("sendMessage", message)
             io.to(socket.id).emit("receiveMessage", message)
